@@ -1,4 +1,5 @@
 from sklearn import tree
+from sklearn.metrics import accuracy_score
 import xlrd
 
 #storing the location of the Excel Workbook containing the Training Samples
@@ -45,5 +46,9 @@ clf.fit(listTSFV,listTSLabels)
 
 #testing the classifier on 'testInput' (LIST of test Sample FVs: so a list of lists) and printing the output
 testInput = [[190,70,43]]
-print(clf.predict(testInput))
+predLabels = clf.predict(testInput)
+
+#using the method 'sklearn.metrics.accuracy_score' to evaluate the classifier performance
+trueLabelsTestInput = ['male']
+print(accuracy_score(labelsTestInput, clf.predict(testInput), normalize = False))
 
