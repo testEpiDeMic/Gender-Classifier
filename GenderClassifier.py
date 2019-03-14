@@ -1,5 +1,4 @@
-from sklearn import tree
-from sklearn.metrics import accuracy_score
+from sklearn import tree, svm, neighbors, naive_bayes, metrics
 import xlrd
 
 #storing the location of the Excel Workbook containing the Training Samples
@@ -15,7 +14,7 @@ sheetFV = ipWB.sheet_by_name(sheetNameFV)
 sheetNameLabels = "Labels"
 sheetLabels = ipWB.sheet_by_name(sheetNameLabels)
 
-#storing the no. of Training Samples into noTSFV
+#storing the no. of Training Samples (Feature Vectors) into noTSFV
 #noTSFV = sheetFV.nrows
 noTS = sheetFV.nrows
 
@@ -23,7 +22,7 @@ noTS = sheetFV.nrows
 dimTS = sheetFV.ncols
 
 #storing the no. of Training Sample Labels into noLabels
-#optional test to check if noTS matches with noLabels
+#optional test to check if noTSFV matches with noLabels
 
 #creating a list of Training Sample Feature Vectors
 listTSFV = []
@@ -38,17 +37,27 @@ listTSLabels = []
 for TSCounter in range(noTS):
 	listTSLabels.append(sheetLabels.cell_value(TSCounter,0))
 
-#creating a classifier 'clf' with the Descision Tree model
-clf = tree.DecisionTreeClassifier()
+#creating classifiers with the models: 1. Decision Tree 2. SVC 3. KNN 4. Naive Bayes Gaussian and storing them in a list 'listClfs'
+listClfs = []
+clfDT = tree.DecisionTreeClassifier()
+clfSVC = svm.LinearSVC()
+clfKN = neighbors.KNeighborsClassifier()
+clfGNB = naive_bayes.GaussianNB()
+listClfs.extend([clfDT,clfSVC,clfKN,clfGNB])
 
-#training the classifier with the Decision Tree model
-clf.fit(listTSFV,listTSLabels)
+#training the classifiers
+for clf in listClfs:
+	clf.fit(listTSFV,listTSLabels)
 
-#testing the classifier on 'testInput' (LIST of test Sample FVs: so a list of lists) and printing the output
-testInput = [[190,70,43]]
-predLabels = clf.predict(testInput)
+#testing the classifier on 'testInput' [LIST of test Sample FVs(themselves a list): so a list of lists] and storing the predicted labels in listPredLabels (again a list of lists)
+testInput = [[190,70,43],[160,53,38]]
+listPredLabels = []
+for clf in listClfs:
+	listPredLabels.append(clf.predict(testInput))
 
-#using the method 'sklearn.metrics.accuracy_score' to evaluate the classifier performance
-trueLabelsTestInput = ['male']
-print(accuracy_score(labelsTestInput, clf.predict(testInput), normalize = False))
+
+#using the method 'sklearn.metrics.accuracy_score' to evaluate the classifier performance; normalize = True(default) => % score (remem 'T' capital in 'True') else absolute no of correct classifications
+trueLabelsTestInput = ['male','female']
+for predLabels in listPredLabels:
+	print(metrics.accuracy_score(trueLabelsTestInput, predLabels, normalize = False))
 
